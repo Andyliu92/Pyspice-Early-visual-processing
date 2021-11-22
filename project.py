@@ -17,7 +17,7 @@ if sys.platform == "linux" or sys.platform == "lunix2":
 elif sys.platform == "win32":
     pass
 
-TESTING = False
+TESTING = True
 
 # Functions
 # 18 min of the lec 2 on youtube
