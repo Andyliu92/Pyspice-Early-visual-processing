@@ -7,3 +7,6 @@ Desktop.ini
 #Directories
 bin/
 backup/
+old/
+test/
+try/
