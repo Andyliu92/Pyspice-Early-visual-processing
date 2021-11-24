@@ -14,8 +14,9 @@ def format(analysis):
 
 
 # organize node outputs in the form of frame
+# chronological organized --> spatial organized
 def getFrame(analysis_dict, nodetype, row, column, sequence=0):
-    res_arr = np.empty([row, column], dtype=float)
+    res_arr = np.empty([row, column], dtype=np.float32)
     for i in range(0, row, 1):
         for j in range(0, column, 1):
             nodename = nodetype + '_%d_%d' % (i+1, j+1)
@@ -24,7 +25,18 @@ def getFrame(analysis_dict, nodetype, row, column, sequence=0):
     return res_arr
 
 
+# package getFrame func to get all frames at once.
 def frameAll(analysis_dict, nodetype, row, column, size):
     if nodetype == 'output':
         result = np.empty([size, row, column], dtype=np.float32)
         for i in range(0, size, 1):
+            vin = getFrame(analysis_dict, 'vin', row, column, i)
+            net = getFrame(analysis_dict, 'net', row, column, i)
+            result[i] = vin-net
+            print("Got: frame %d", i)
+    else:
+        result = np.empty([size, row, column], dtype=np.float32)
+        for i in range(0, size, 1):
+            result = getFrame(analysis_dict, nodetype, row, column, i)
+            print("Got: frame %d", i)
+    return result
