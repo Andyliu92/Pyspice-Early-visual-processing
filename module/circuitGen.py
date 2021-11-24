@@ -33,17 +33,14 @@ def staticInput(circuit, row, column, r_net, r_out, v_input, c, mode='square'):
                       (i, j), 'vin_%d_%d' % (i, j), r_out)
 
     # Sensory Inputs
-    v_array = np.zeros(shape=(row, column), dtype=np.float64)
-    for i in range(0, len(v_input)+1, 1):
-        v_array[v_input[i, 0], v_input[i, 1]] = v_input[i, 2]
     for i in range(1, row+1, 1):
         for j in range(1, column+1, 1):
             circuit.V('%d_%d' % (i, j), 'vin_%d_%d' %
-                      (i, j), circuit.gnd, v_array[i-1, j-1])
+                      (i, j), circuit.gnd, v_input[i-1, j-1])
 
 
-def setInit(simulator, c_init):
+def setInit(simulator, c_init, row, column):
     # C init condition
     for i in range(1, row+1, 1):
         for j in range(1, column+1, 1):
-            simulator.initial_condition('net_%d_%d=' % (i, j)+c_init)
+            exec("simulator.initial_condition(net_%d_%d=c_init)" % (i, j))

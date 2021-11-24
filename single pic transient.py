@@ -10,7 +10,7 @@ import module.media as media
 import cv2 as cv
 
 # -------------- Input parameter ----------------------
-Image_path = "D:\\Work\\04 Research Project\\21.08.19 Early Visual Processing\\pyspice\\assets\\img\\test.jpg"
+Image_path = "D:\\Work\\04 Research Project\\21.08.19 Early Visual Processing\\pyspice\\assets\\img\\tiny.jpg"
 img = cv.imread(Image_path)
 # -----------------------------------------------------
 
@@ -19,20 +19,24 @@ row = img.shape[0]
 column = img.shape[1]
 r_net = 620@u_Ohm
 r_out = 1200@u_Ohm
-c = 240@u_uF
+c = 0.2@u_mF
 c_init = 0@u_V
 v_ambient = 0@u_V
+v_input = media.img2Voltage(Image_path)
 # ------------------------------------------------------
 
 # -------------- Analysis Parameter --------------------
 # Transient Analysis
-steptime = 0@u_ms
-finaltime = 40000@u_ms
+startTime = 0@u_ms
+stepTime = 10@u_ms
+finalTime = 1000@u_ms
 # ------------------------------------------------------
 
 # -------------- Result settings -----------------------
 ResultNodeType = 'output'  # output for final result, alternative: vin, net
 Frame_quantity = 100
+videoOutPath = 'D:\\Work\\04 Research Project\\21.08.19 Early Visual Processing\\pyspice\\assets\\out\\out.avi'
+imageOutPath = 'D:\\Work\\04 Research Project\\21.08.19 Early Visual Processing\\pyspice\\assets\\out\\out'
 # ------------------------------------------------------
 
 
@@ -43,7 +47,6 @@ if sys.platform == "linux" or sys.platform == "lunix2":
 elif sys.platform == "win32":
     pass
 
-v_input = media.img2Voltage(Image_path)
 
 # -------------- simulation ----------------------
 circuitR = Circuit('channel R')
@@ -53,19 +56,33 @@ circuitB = Circuit('channel B')
 circuit = [circuitB, circuitG, circuitR]
 analysis = []
 out = []
-sim_result = np.empty((Frame_quantity, row, column), dtype=np.float32)
+sim_result = np.empty((3, Frame_quantity, row, column), dtype=np.float32)
 
+v_input = data.logProc(v_input)
 for i in range(0, 3, 1):
+    print('\n\n\n----------------%d th iterate-----------------' % i)
+
     simulator = circuit[i].simulator(temperature=25, nominal_temperature=25)
+    print('Simulator created')
 
     # circuit specification
     cg.staticInput(circuit[i], row, column, r_net, r_out,
-                   v_input[:, i], c, mode='square')
+                   v_input[:, :, i], c, mode='square')
+    cg.setInit(simulator, c_init, row, column)
+    print('circuit generated')
 
     analysis.append(simulator.transient(
-        step_time=steptime, end_time=finaltime))
+        start_time=startTime, step_time=stepTime, end_time=finalTime))
+    print('analysis finished')
 
     out.append(data.format(analysis[i]))
+    print('output dictionary transformed')
 
-    sim_result[:, i] = data.frameAll(out[i], ResultNodeType,
-                                     row, column, Frame_quantity)
+    sim_result[i] = data.frameAll(out[i], ResultNodeType,
+                                  row, column, Frame_quantity)
+    print('got sim result')
+
+sim_result = data.std_8b(sim_result)
+
+media.res2img(sim_result, imageOutPath, row, column)
+media.res2Video(sim_result, videoOutPath, row, column)

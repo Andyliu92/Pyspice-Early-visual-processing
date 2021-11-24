@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 # create and return a dictionary which has the record of "Node Name" <---> "Node value array"(np.array)
 
@@ -33,10 +34,25 @@ def frameAll(analysis_dict, nodetype, row, column, size):
             vin = getFrame(analysis_dict, 'vin', row, column, i)
             net = getFrame(analysis_dict, 'net', row, column, i)
             result[i] = vin-net
-            print("Got: frame %d", i)
+            # print("Got: frame %d" % i)
     else:
         result = np.empty([size, row, column], dtype=np.float32)
         for i in range(0, size, 1):
             result = getFrame(analysis_dict, nodetype, row, column, i)
-            print("Got: frame %d", i)
+            # print("Got: frame %d" % i)
     return result
+
+
+def std_8b(data):
+    dmax = data.max()
+    dmin = data.min()
+    data = data - dmin
+    data = (data * 255) / (dmax-dmin)
+    return data
+
+
+def logProc(data):
+    data = data + np.ones(data.shape)
+    data = np.log(data)
+    data = data * 255 / math.log(256)
+    return data
