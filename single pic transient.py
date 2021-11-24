@@ -3,10 +3,7 @@ import PySpice.Logging.Logging as Logging
 from PySpice.Spice.Netlist import Circuit
 import PySpice
 import sys
-import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
-import math
 import module.circuitGen as cg
 import module.data as data
 import module.media as media
