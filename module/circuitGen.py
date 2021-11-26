@@ -43,4 +43,5 @@ def setInit(simulator, c_init, row, column):
     # C init condition
     for i in range(1, row+1, 1):
         for j in range(1, column+1, 1):
-            exec("simulator.initial_condition(net_%d_%d=c_init)" % (i, j))
+            exec("simulator.initial_condition(net_%d_%d=c_init[%d, %d])" % (
+                i, j, i-1, j-1))

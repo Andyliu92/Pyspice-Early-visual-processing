@@ -43,11 +43,13 @@ def frameAll(analysis_dict, nodetype, row, column, size):
     return result
 
 
+# Coverting original output data to range [0,255], for 8-bit image storage.
+# To keep consistency, 0 in the original data will be converted to 128
 def std_8b(data):
     dmax = data.max()
     dmin = data.min()
-    data = data - dmin
-    data = (data * 255) / (dmax-dmin)
+    Max = max(abs(dmax), abs(dmin))
+    data = (data / Max * 127) + 128
     return data
 
 
